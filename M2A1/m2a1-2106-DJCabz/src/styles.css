@@ -1,0 +1,57 @@
+{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+}
+
+main{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    padding:20px;
+}
+
+nav ul{
+    display:flex;
+    gap:20px;
+    list-style:none;
+}
+
+.hero{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:40px;
+    margin-top:40px;
+}
+
+.image{
+    width:400px;
+    height:300px;
+    background:#rgb(204, 204, 204);
+}
+
+.content{
+    flex:1;
+}
+
+.projects,
+.testimonials{
+    margin: top 60px;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+}
