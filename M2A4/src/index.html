@@ -1,0 +1,65 @@
+<!-- Module 2 - Activity 4 - Review: Build a Small Page From Scratch
+
+  CLOSED BOOK. Build this from memory - no Google, no AI. It is a checkpoint to
+  see what has stuck. Everything here you have already done in m1a1 through m2a3.
+
+  Build a small "My Favourites" page IN THIS FILE, styled from styles.css:
+
+    HTML (Module 1):
+      - a valid HTML5 page: doctype, <html lang>, a <head> with <title> and
+        <meta charset="utf-8">, and a <body>
+      - the semantic layout: a <header> with a <nav> (2+ links), a <main>,
+        and a <footer>
+      - an <h1> with text
+
+    CSS (Module 2) - all in styles.css, linked from the <head>, no style="":
+      - lay out your nav (or your cards) with Flexbox (display: flex)
+      - a section of THREE cards, each with class="card" (reuse the component)
+      - style .card once, and apply a colour, a font-family, and spacing
+
+  Delete this comment when you are done, then open the page in a browser to check.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My Favourites</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#favorites">Favorites</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Darylle's Favorites</h1>
+
+    <section class="card-container">
+      <div class="card">
+        <h2>Listening to BTS</h2>
+        <p>Listening to BTS's music, it can be happy, sad, calming, and even motivational.</p>
+      </div>
+
+      <div class="card">
+        <h2>Playing Video Games</h2>
+        <p>Playing Video games relieves my stress and it can sometimes even help in my studies when it comes to solving problems and history problems like egyptian or roman ages.</p>
+      </div>
+
+      <div class="card">
+        <h2>Watching BL series</h2>
+        <p>i love watching BL because it makes me blush and i even shout sometimes when things get romantic and intimate.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Copyright 2026 Darylle</p>
+  </footer>
+
+</body>
+</html>
