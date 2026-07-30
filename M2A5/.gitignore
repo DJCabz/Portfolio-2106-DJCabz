@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.*
+.claude/
+test-results.json
+shot.mjs
+.DS_Store

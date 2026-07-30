@@ -1,0 +1,202 @@
+name: Autograde
+
+# Runs the test suite on every push so graders see a pass/fail at a glance, then
+# loads each page in a real browser at phone / tablet / desktop widths to (a) check
+# there is no horizontal scrolling at 375px and (b) publish a screenshot at each
+# width. Screenshots go to a separate "previews" branch (a timestamped folder per
+# run) and are linked from the run summary, so your working branch is never touched.
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # lets the preview step push to the previews branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: tests
+        run: npx vitest run --reporter=default --reporter=json --outputFile=test-results.json
+
+      # ---- Page preview (never affects the grade) -------------------------
+      # Don't spend CI minutes on a browser until a page has real content.
+      - name: Check for renderable content
+        if: always()
+        run: |
+          node <<'EOF' >> "$GITHUB_ENV"
+          const { readdirSync, readFileSync, existsSync } = require('node:fs')
+          const root = existsSync('src') ? 'src' : '.'
+          const skip = new Set(['node_modules', 'test', 'tests', 'submission', 'previews'])
+          function listHtml(dir, rel = '') {
+            const out = []
+            for (const e of readdirSync(dir, { withFileTypes: true })) {
+              if (e.name.startsWith('.') || skip.has(e.name)) continue
+              const r = rel ? `${rel}/${e.name}` : e.name
+              if (e.isDirectory()) out.push(...listHtml(`${dir}/${e.name}`, r))
+              else if (e.name.toLowerCase().endsWith('.html')) out.push(r)
+            }
+            return out
+          }
+          const hasContent = listHtml(root).some((rel) =>
+            readFileSync(`${root}/${rel}`, 'utf8')
+              .replace(/<!--[\s\S]*?-->/g, '').replace(/\s+/g, '').length > 0)
+          console.log(`HAS_CONTENT=${hasContent ? '1' : '0'}`)
+          EOF
+
+      - name: Install browser for preview
+        if: ${{ always() && env.HAS_CONTENT == '1' }}
+        continue-on-error: true
+        run: |
+          npm i -D playwright >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+
+      - name: Screenshot every page at three widths + check mobile overflow
+        if: ${{ always() && env.HAS_CONTENT == '1' }}
+        continue-on-error: true
+        run: |
+          TS=$(date -u +%Y-%m-%dT%H-%M-%SZ)
+          echo "TS=$TS" >> "$GITHUB_ENV"
+          cat > shot.mjs <<'EOF'
+          import { chromium } from 'playwright'
+          import { pathToFileURL } from 'node:url'
+          import { readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs'
+
+          const ts = process.argv[2] || 'preview'
+          const outDir = `submission/${ts}`
+          mkdirSync(outDir, { recursive: true })
+
+          // Students build their site in src/; fall back to repo root if absent.
+          const root = existsSync('src') ? 'src' : '.'
+          const skip = new Set(['node_modules', 'test', 'tests', 'submission', 'previews'])
+          function listHtml(dir, rel = '') {
+            const out = []
+            for (const e of readdirSync(dir, { withFileTypes: true })) {
+              if (e.name.startsWith('.') || skip.has(e.name)) continue
+              const r = rel ? `${rel}/${e.name}` : e.name
+              if (e.isDirectory()) out.push(...listHtml(`${dir}/${e.name}`, r))
+              else if (e.name.toLowerCase().endsWith('.html')) out.push(r)
+            }
+            return out
+          }
+          const pages = listHtml(root).sort((a, b) =>
+            (a === 'index.html' ? '' : a).localeCompare(b === 'index.html' ? '' : b))
+
+          const widths = [
+            { name: 'mobile-375', w: 375, h: 800 },
+            { name: 'tablet-768', w: 768, h: 1024 },
+            { name: 'desktop-1280', w: 1280, h: 900 },
+          ]
+
+          const browser = await chromium.launch()
+          let mobileOverflow = false
+          const done = []
+          try {
+            for (const rel of pages) {
+              const base = rel.replace(/\.html$/i, '').replace(/[\/\\]/g, '-') || 'index'
+              const shots = []
+              for (const v of widths) {
+                const img = `${base}-${v.name}.png`
+                const page = await browser.newPage({ viewport: { width: v.w, height: v.h } })
+                await page.goto(pathToFileURL(`${root}/${rel}`).href, { waitUntil: 'load', timeout: 15000 }).catch(() => {})
+                await page.screenshot({ path: `${outDir}/${img}`, fullPage: true })
+                if (v.w === 375) {
+                  const overflow = await page.evaluate(() => {
+                    const el = document.documentElement
+                    return el.scrollWidth - el.clientWidth > 2 // small tolerance
+                  })
+                  if (overflow) mobileOverflow = true
+                }
+                await page.close()
+                shots.push({ name: v.name, img })
+              }
+              done.push({ rel, shots })
+            }
+          } finally {
+            await browser.close()
+          }
+
+          const responsive = !mobileOverflow
+          const md = [
+            `# Submission preview - ${ts}`, '',
+            `**Responsive (no horizontal scroll at 375px):** ${responsive ? '✅ pass' : '❌ fail'}`, '',
+            'Each page is shown at phone (375), tablet (768), and desktop (1280) width.', '',
+            ...done.flatMap((p) => [`## ${p.rel}`, '', ...p.shots.map((s) => `**${s.name}**\n\n![${s.name}](./${s.img})`), '']),
+          ].join('\n')
+          writeFileSync(`${outDir}/README.md`, md)
+          writeFileSync(`${outDir}/responsive.txt`, responsive ? 'pass' : 'fail')
+          console.log(`pages: ${done.length}, responsive: ${responsive ? 'pass' : 'fail'}`)
+          EOF
+          node shot.mjs "$TS"
+
+      # Publish the screenshots to a dedicated "previews" branch using a separate
+      # worktree, so the student's working branch is never modified.
+      - name: Publish preview to previews branch
+        if: ${{ always() && env.TS != '' }}
+        continue-on-error: true
+        run: |
+          [ -d "submission/$TS" ] || exit 0
+          git config user.name "course-bot"
+          git config user.email "course-bot@users.noreply.github.com"
+
+          WT="$RUNNER_TEMP/previews"
+          git fetch origin previews 2>/dev/null || true
+          if git show-ref --verify --quiet refs/remotes/origin/previews; then
+            git worktree add "$WT" -B previews origin/previews
+          else
+            git worktree add --detach "$WT" HEAD
+            git -C "$WT" checkout --orphan previews
+            git -C "$WT" rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          mkdir -p "$WT/submission"
+          cp -r "submission/$TS" "$WT/submission/$TS"
+
+          git -C "$WT" add submission
+          git -C "$WT" diff --cached --quiet && { echo "no preview change"; exit 0; }
+          git -C "$WT" commit -m "📸 Page preview $TS [skip ci]"
+          git -C "$WT" push origin previews
+
+      - name: Write grading summary
+        if: always()
+        run: |
+          node <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          const fs = require('fs');
+          let r;
+          try { r = JSON.parse(fs.readFileSync('test-results.json', 'utf8')); }
+          catch { console.log('## ❌ Tests did not run (build/install error)'); process.exit(0); }
+
+          const tests = r.testResults.flatMap(f => f.assertionResults);
+          const passed = tests.filter(t => t.status === 'passed').length;
+          const total = tests.length;
+
+          console.log(`## ${passed === total ? '✅' : '❌'} ${passed} / ${total} tests passed`);
+          console.log('');
+          console.log('| Result | Test |');
+          console.log('| --- | --- |');
+          for (const t of tests) {
+            const icon = t.status === 'passed' ? '✅' : '❌';
+            console.log(`| ${icon} | ${t.fullName || t.title} |`);
+          }
+          const ts = process.env.TS;
+          if (ts) {
+            let resp = '';
+            try { resp = fs.readFileSync(`submission/${ts}/responsive.txt`, 'utf8').trim(); } catch {}
+            const url = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/blob/previews/submission/${ts}/README.md`;
+            console.log('');
+            if (resp) console.log(`**Responsive (no horizontal scroll at 375px):** ${resp === 'pass' ? '✅ pass' : '❌ fail'}`);
+            console.log('');
+            console.log(`📸 **Page preview (phone / tablet / desktop):** [view screenshots](${url})`);
+          }
+          EOF
