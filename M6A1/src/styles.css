@@ -1,0 +1,209 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121214;
+    color: #5d0edd;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.site-header, .site-footer {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.site-header h1 {
+    color: #ff2a5f;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(188, 6, 224, 0.4);
+}
+
+.site-footer {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* Container Spacing */
+main {
+    width: 100%;
+    max-width: 450px;
+}
+
+section {
+    margin-bottom: 40px;
+}
+
+.card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #31102f 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    padding: 25px;
+    text-align: center;
+    border: 1px solid #3b0764;
+    
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(255, 42, 95, 0.25);
+}
+
+.card-image-placeholder {
+    width: 120px;
+    height: 120px;
+    background-color: #4c1d95;
+    border-radius: 50%;
+    margin: 0 auto 15px ease;
+    font-size: 4rem;
+    line-height: 120px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.card h2 {
+    margin: 10px 0;
+    font-size: 1.8rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.card-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:hover {
+    transform: scale(1.1);
+}
+
+.btn-nope {
+    background-color: #334155;
+    color: #f8fafc;
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+.btn-like {
+    background-color: #ff2a5f;
+    color: white;
+    /* Infinitely pulses every 1.5 seconds */
+    animation: heartPulse 1.5s infinite ease-in-out;
+}
+
+.btn-like:hover {
+    background-color: #e11d48;
+}
+
+.vitals h2, .signup h2 {
+    font-size: 1.3rem;
+    color: #a78bfa;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1e1e24;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #2e1065;
+    color: #ddd6fe;
+    font-weight: 600;
+}
+
+tr {
+    border-bottom: 1px solid #334155;
+}
+
+tr:last-child {
+    border-bottom: none;
+}
+
+td:first-child {
+    color: #94a3b8;
+    font-weight: 500;
+    width: 40%;
+}
+
+
+form {
+    background-color: #1e1e24;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+form label {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+form input, form textarea, form select {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 10px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+form input:focus, form textarea:focus, form select:focus {
+    border-color: #a78bfa;
+}
+
+.btn-submit {
+    width: 100%;
+    background: linear-gradient(90deg, #ff2a5f, #7c3aed);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s ease;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}

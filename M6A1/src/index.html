@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MonsterMatch - Profile</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1>Kind Transylvania</h1>
+        <p>Find your eternal flame.</p>
+    </header>
+    
+    <main>
+        <section class="profile">
+            <article class="card">
+                <div class="card-image-placeholder">🧛‍♂️</div>
+                <h2>Count Vlad, <span class="age">542</span></h2>
+                <p class="bio-summary">Enjoys castle walks, fine vintage O-negative, and avoiding direct sunlight.</p>
+                <div class="card-buttons">
+                    <button class="btn btn-nope">❌ Nope</button>
+                    <button class="btn btn-like">❤️ Like</button>
+                </div>
+            </article>
+        </section>
+
+        <section class="vitals">
+            <h2>Vitals Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trait</th>
+                        <th>Information</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Age</td>
+                        <td>542 years young</td>
+                    </tr>
+                    <tr>
+                        <td>Height</td>
+                        <td>6'4"</td>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td>Transylvania</td>
+                    </tr>
+                    <tr>
+                        <td>Star Sign</td>
+                        <td>Scorpio</td>
+                    </tr>
+                    <tr>
+                        <td>Looking For</td>
+                        <td>Someone immortal</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="signup">
+            <h2>Create Your Monster Profile</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="monster-name">Monster Name:</label>
+                    <input type="text" id="monster-name" name="monster-name" required placeholder="e.g. Frankenstein">
+                </div>
+
+                <div class="form-group">
+                    <label for="monster-email">Scary Email Address:</label>
+                    <input type="email" id="monster-email" name="monster-email" required placeholder="vampire@castle.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="monster-age">Age (Years):</label>
+                    <input type="number" id="monster-age" name="monster-age" min="0" required placeholder="e.g. 200">
+                </div>
+
+                <div class="form-group">
+                    <label for="monster-bio">Your Haunting Bio:</label>
+                    <textarea id="monster-bio" name="monster-bio" rows="4" required placeholder="Tell us about your long nights..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="monster-type">Monster Type:</label>
+                    <select id="monster-type" name="monster-type" required>
+                        <option value="">-- Choose Type --</option>
+                        <option value="vampire">Vampire</option>
+                        <option value="werewolf">Werewolf</option>
+                        <option value="zombie">Zombie</option>
+                        <option value="ghost">Ghost</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Join the Horde</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Kind Transylvaniia Inc. Keeping it Spooky! </p>
+    </footer>
+</body>
+</html>
